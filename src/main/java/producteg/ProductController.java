@@ -1,11 +1,14 @@
 package producteg;
 
 import java.io.IOException;
+
+import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import member.MemberDAO;
 
 /**
  * Servlet implementation class ProductController
@@ -14,34 +17,38 @@ import javax.servlet.http.HttpServletResponse;
 public class ProductController extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
-	ProductService service;
+	MemberDAO dao;
+
+	@Override
+	public void init(ServletConfig config) throws ServletException {
+		// TODO Auto-generated method stub
+		super.init(config);
+		dao = new MemberDAO();
+	}
+
+	@Override
+	protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		// TODO Auto-generated method stub
+		String action = req.getParameter("action");
+		String view = "";
+		if(action == null) {
+			getServletContext().getRequestDispatcher("/mcontrol?action=list").forward(req,resp);
+		}
+		else {
+			switch(action) {
+			case "list": view = list(req, resp); break;
+			case "insert": view = insert(req, resp); break;
+			}
+			getServletContext().getRequestDispatcher(view).forward(req, resp);
+		}
+	}
 	
-    /**
-     * @see HttpServlet#HttpServlet()
-     */
-    public ProductController() {
-        super();
-        service = new ProductService();
-        // TODO Auto-generated constructor stub
-    }
-
-	/**
-	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
-	 */
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
-		//response.getWriter().append("Served at: pcontrol").append(request.getContextPath());
-		request.setAttribute("products", service.findAll());
-		getServletContext().getRequestDispatcher("/productlist.jsp").forward(request,  response);
-		//return "/productlist.jsp";
+	public String list(HttpServletRequest req, HttpServletResponse resp) {
+		req.setAttribute("memberlist", dao.getAll());
+		return "/memberinfo.jsp";
 	}
-
-	/**
-	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
-	 */
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
-		doGet(request, response);
+	
+	public String insert(HttpServletRequest req, HttpServletResponse resp) {
+		return "";
 	}
-
 }
